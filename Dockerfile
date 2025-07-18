@@ -1,18 +1,20 @@
-# Usar una imagen base oficial de Python
+# Usa una imagen oficial de Python como imagen base
 FROM python:3.9-slim
 
-# Establecer el directorio de trabajo dentro del contenedor
+# Establece el directorio de trabajo en el contenedor
 WORKDIR /app
 
-# Copiar el archivo de requisitos e instalar las librerías
+# Instala las dependencias del sistema requeridas por RDKit para dibujar
+RUN apt-get update && apt-get install -y libxrender1 && rm -rf /var/lib/apt/lists/*
+
+# Copia el archivo de dependencias al directorio de trabajo
 COPY requirements.txt .
+
+# Instala los paquetes necesarios especificados en requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar todo el código de nuestra aplicación (app.py)
+# Copia el contenido del directorio local al directorio de trabajo
 COPY . .
 
-# Exponer el puerto 8080 para que Cloud Run pueda comunicarse con nuestro servidor
-EXPOSE 8080
-
-# El comando para iniciar la aplicación usando Gunicorn
+# Comando para ejecutar la aplicación
 CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
